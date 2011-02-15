@@ -1,0 +1,38 @@
+     * * * * * * * * * * * * * * BOOTING FROM SDCARD  * * * * * * * * * * * * * *
+My idea is simple, when we make our build of android we'd like to test it, before we flash
+it to phone's partitions. So if we make one partition on sdcard, we can than boot from there.
+If we add 'bind' mount option into android's init binary, than we can mount folders from 
+sdcard partition like system, data, dbdata, cache and phone will just boot from our sdcard. 
+And If we don't want to boot from sdcard, only one thing we must do, is to remove sdcard:-) 
+and our bind mounting won't work and next will be mount of phone's partitions.
+
+example:
+
+......
+
+# create sdcard nod in /dev/block
+    mknod /dev/block/mmcblk1p2 179 10
+# create dir where we mount sdcard
+    mkdir /sdroot 0755 system system
+# mount sdcard
+    mount ext2 /dev/block/mmcblk1p2 /sdroot
+# mount sdcard's system dir into rootfs /system
+    mount ext2 /sdroot/system /system bind
+
+# So if above mounts will work, this mount will fail, but
+# it doesn't matter, because we will boot from sdcard
+# and if above mounts won't work, this mount will mounts 
+# phone's system partition and phone will boot from flash memory
+    mount yaffs2 mtd@system /system
+    mount yaffs2 mtd@system /system ro remount
+
+This can be done for all partition like system, data, dbdata, cache
+
+     * * * * * * * * * * * FOR GALAXYS USERS IN FROYO * * * * * * * * * * * * * * *
+If you are galaxys user in froyo version(like me), than you must use Samsung's 'great' init
+binary, which isn't not fully opensourced, so I add PREINIT_MODE flag into init binary, so in 
+this mode will init only parse preinit.rc config and than run orig. samsung init binary(name 
+os samsung's binary you can specify by #define)
+
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+checkout rootdir folder too for *.rc files
