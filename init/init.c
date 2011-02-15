@@ -53,6 +53,10 @@ static int property_triggers_enabled = 0;
 static int   bootchart_count;
 #endif
 
+#ifdef PREINIT_MODE && MAIN_INIT
+#define MAIN_INIT "main_init"
+#endif
+
 static char console[32];
 static char serialno[32];
 static char bootmode[32];
@@ -805,6 +809,23 @@ void handle_keychord(int fd)
 
 int main(int argc, char **argv)
 {
+#ifdef PREINIT_MODE
+    INFO("reading preinit config file\n");
+#ifdef TEST
+    parse_config_file("/data/local/preinit_test.rc");
+#else
+    parse_config_file("/preinit.rc");
+#endif
+
+    action_for_each_trigger("pre-init", action_add_queue_tail);
+    drain_action_queue();
+
+#ifdef TEST
+    return 0;
+#else
+    return execve(MAIN_INIT, argv);
+#endif
+#else
     int device_fd = -1;
     int property_set_fd = -1;
     int signal_recv_fd = -1;
@@ -850,7 +871,7 @@ int main(int argc, char **argv)
          */
     open_devnull_stdio();
     log_init();
-    
+
     INFO("reading config file\n");
     parse_config_file("/init.rc");
 
@@ -1043,4 +1064,5 @@ int main(int argc, char **argv)
     }
 
     return 0;
+#endif // PREINIT_MODE
 }

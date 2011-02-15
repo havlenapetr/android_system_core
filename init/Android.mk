@@ -12,6 +12,8 @@ LOCAL_SRC_FILES:= \
 	parser.c \
 	logo.c
 
+#LOCAL_CFLAGS := -DTEST -DPREINIT_MODE
+
 ifeq ($(strip $(INIT_BOOTCHART)),true)
 LOCAL_SRC_FILES += bootchart.c
 LOCAL_CFLAGS    += -DBOOTCHART=1
