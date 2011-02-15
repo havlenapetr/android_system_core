@@ -812,6 +812,9 @@ void handle_keychord(int fd)
 int main(int argc, char **argv)
 {
 #ifdef PREINIT_MODE
+    mkdir("/dev", 0755);
+    mkdir("/dev/block", 0755);
+
     INFO("reading preinit config file\n");
 #ifdef TEST
     parse_config_file("/data/local/preinit_test.rc");
