@@ -1,0 +1,24 @@
+
+on pre-init
+
+sysclktz 0
+
+loglevel 3
+
+# create system directories
+    mkdir /system
+    mkdir /data 0771 system system
+    mkdir /cache 0770 system cache
+    mkdir /dbdata
+    chmod 0771 /dbdata
+# try to mount sdcard ext2 partition and theirs
+# system, data, dbdata, cache folders
+    mknod /dev/block/mmcblk1p2 179 10
+    mkdir /sdroot 0755 system system
+    mount vfat /dev/block/mmcblk1p2 /sdroot
+    mount ext2 /sdroot/system /system bind
+    mount ext2 /sdroot/data /data bind
+    mount ext2 /sdroot/dbdata /dbdata bind
+    mount ext2 /sdroot/cache /cache bind
+
+# after our job is completed, than run main init
