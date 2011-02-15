@@ -53,8 +53,10 @@ static int property_triggers_enabled = 0;
 static int   bootchart_count;
 #endif
 
-#ifdef PREINIT_MODE && MAIN_INIT
+#ifdef PREINIT_MODE
+#ifndef MAIN_INIT
 #define MAIN_INIT "main_init"
+#endif
 #endif
 
 static char console[32];
