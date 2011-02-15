@@ -15,7 +15,7 @@ loglevel 3
 # system, data, dbdata, cache folders
     mknod /dev/block/mmcblk1p2 179 10
     mkdir /sdroot 0755 system system
-    mount vfat /dev/block/mmcblk1p2 /sdroot
+    mount ext2 /dev/block/mmcblk1p2 /sdroot
     mount ext2 /sdroot/system /system bind
     mount ext2 /sdroot/data /data bind
     mount ext2 /sdroot/dbdata /dbdata bind
