@@ -828,7 +828,8 @@ int main(int argc, char **argv)
 #ifdef TEST
     return 0;
 #else
-    return execve(MAIN_INIT, argv);
+    char *cmd[] = { "main_init", (char *)0 };
+    return execv ("/main_init", cmd);
 #endif
 #else
     int device_fd = -1;
@@ -991,7 +992,7 @@ int main(int argc, char **argv)
     queue_all_property_triggers();
     drain_action_queue();
 
-        /* enable property triggers */   
+        /* enable property triggers */
     property_triggers_enabled = 1;     
 
     ufds[0].fd = device_fd;
