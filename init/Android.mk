@@ -22,7 +22,7 @@ LOCAL_SRC_FILES += bootchart.c
 LOCAL_CFLAGS    += -DBOOTCHART=1
 endif
 
-ifeq ($(BOARD_PROVIDES_BOOTMODE), true)
+ifeq ($(strip $(BOARD_PROVIDES_BOOTMODE)),true)
 LOCAL_CFLAGS += -DBOARD_PROVIDES_BOOTMODE
 endif
 
