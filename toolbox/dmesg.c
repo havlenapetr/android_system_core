@@ -9,6 +9,9 @@
 #define KLOG_BUF_SHIFT	17	/* CONFIG_LOG_BUF_SHIFT from our kernel */
 #define KLOG_BUF_LEN	(1 << KLOG_BUF_SHIFT)
 
+#define LOG_START "- - - - - - - - - - - - - - - - -\n"
+#define LOG_START_LENGTH 34
+
 int fd;
 
 static void dmesg_close() {
@@ -23,6 +26,15 @@ static void dmesg_os_handler(int signum, siginfo_t *info, void *ptr) {
     //printf("Signal originates from process %lu\n",
     //       (unsigned long)info->si_pid);
     dmesg_close();
+}
+
+static int dmesg_is_file_exist(char *file) {
+    int f = open(file, O_WRONLY);
+    if (f != 0) {
+        close(f);
+        return 1;
+    }
+    return -1;
 }
 
 int dmesg_main(int argc, char **argv)
@@ -40,7 +52,8 @@ int dmesg_main(int argc, char **argv)
             op = KLOG_READ;
         } else if (argc > 1 && !strcmp(*argv, "-f")) {
             *argv++;
-            fd = open(*argv, O_WRONLY | O_CREAT);
+            fd = open(*argv, O_WRONLY|O_CREAT|O_APPEND);
+            write(fd, LOG_START, LOG_START_LENGTH);
         } else {
             op = KLOG_READ_ALL;
             fd = 0;
