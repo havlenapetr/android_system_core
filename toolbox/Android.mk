@@ -54,7 +54,8 @@ TOOLS := \
 	vmstat \
 	nandread \
 	ionice \
-	lsof
+	lsof \
+	chroot
 
 LOCAL_SRC_FILES:= \
 	toolbox.c \
