@@ -708,10 +708,6 @@ int main(int argc, char **argv)
     else
 #endif
     {
-#ifdef INIT_BOOTMODE
-        // let the user select which boot he wants
-        int mode = bootmenu_prompt_and_wait();
-#endif
         get_hardware_name(hardware, &revision);
         snprintf(tmp, sizeof(tmp), "/init.%s.rc", hardware);
         init_parse_config_file(tmp);

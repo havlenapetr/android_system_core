@@ -17,11 +17,6 @@ LOCAL_SRC_FILES:= \
 	ueventd.c \
 	ueventd_parser.c
 
-ifeq ($(strip $(INIT_BOOTMODE)),true)
-LOCAL_C_INCLUDES += bootable/recovery
-LOCAL_SRC_FILES += bootmenu.c
-endif
-
 ifeq ($(strip $(INIT_BOOTCHART)),true)
 LOCAL_SRC_FILES += bootchart.c
 LOCAL_CFLAGS    += -DBOOTCHART=1
@@ -37,12 +32,7 @@ LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT)
 LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_UNSTRIPPED)
 
-ifeq ($(strip $(INIT_BOOTMODE)),true)
-LOCAL_STATIC_LIBRARIES += libminui libpixelflinger_static libcutils
-LOCAL_STATIC_LIBRARIES += libstdc++ libc
-else
-LOCAL_STATIC_LIBRARIES += libcutils libc
-endif
+LOCAL_STATIC_LIBRARIES := libcutils libc
 
 include $(BUILD_EXECUTABLE)
 
