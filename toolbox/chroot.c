@@ -49,7 +49,7 @@ int chroot_main(int argc, char **argv)
     } else {
         prog = getenv("SHELL");
         if (!prog)
-            prog = "/bin/sh";
+            prog = "/system/bin/sh";
         return execlp(prog, prog, NULL);
     }
     fprintf(stderr, "Cannot execute %s: %s\n", prog, strerror(errno));
