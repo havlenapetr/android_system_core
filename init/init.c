@@ -611,6 +611,9 @@ static void import_kernel_nv(char *name, int for_emulator)
 
     if (!strcmp(name,"qemu")) {
         strlcpy(qemu, value, sizeof(qemu));
+    /* Samsung Bootloader recovery cmdline */
+    } else if (!strcmp(name,"bootmode")) {
+        property_set("ro.boot.mode", value);
     } else if (!strncmp(name, "androidboot.", 12) && name_len > 12) {
         const char *boot_prop_name = name + 12;
         char prop[PROP_NAME_MAX];
@@ -888,7 +891,17 @@ int main(int argc, char **argv)
         property_load_boot_defaults();
 
     INFO("reading config file\n");
-    init_parse_config_file("/init.rc");
+#ifdef BOARD_PROVIDES_BOOTMODE
+    /* Samsung Galaxy S: special bootmode for recovery
+     * Samsung Bootloader only knows one Kernel, which has to detect
+     * from bootmode if it should run recovery. */
+    if (!strcmp(bootmode, "2"))
+        init_parse_config_file("/recovery.rc");
+    else
+#endif
+    {
+        init_parse_config_file("/init.rc");
+    }
 
     action_for_each_trigger("early-init", action_add_queue_tail);
 
