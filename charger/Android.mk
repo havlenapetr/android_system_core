@@ -16,7 +16,10 @@ LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_UNSTRIPPED)
 
 LOCAL_C_INCLUDES := bootable/recovery
 
-LOCAL_STATIC_LIBRARIES := libminui libpixelflinger_static libpng
+ifneq ($(TARGET_RECOVERY_GRAPHICS_LIB),)
+  LOCAL_STATIC_LIBRARIES += $(TARGET_RECOVERY_GRAPHICS_LIB)
+endif
+LOCAL_STATIC_LIBRARIES += libminui libpixelflinger_static libpng
 LOCAL_STATIC_LIBRARIES += libz libstdc++ libcutils libc
 
 include $(BUILD_EXECUTABLE)
