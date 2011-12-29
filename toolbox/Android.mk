@@ -55,7 +55,8 @@ TOOLS := \
 	nandread \
 	ionice \
 	touch \
-	lsof
+	lsof \
+	chroot
 
 ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
 TOOLS += r
