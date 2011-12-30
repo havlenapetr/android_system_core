@@ -400,6 +400,31 @@ void get_hardware_name(char *hardware, unsigned int *revision)
     }
 }
 
+#ifdef BOARD_PROVIDES_LPM_MODE
+int is_charger_mode()
+{
+    int fd;
+    char value[1];
+
+    memset(&value, 0, sizeof(char) * 1);
+    fd = open("/sys/class/power_supply/battery/charging_mode_booting", O_RDONLY);
+    if (fd >= 0) {
+        if(read(fd, &value, 1) < 0) {
+            ERROR("Can't read state from charger sys node!\n");
+            goto end;
+        }
+    } else {
+        ERROR("Can't open charger sys node!\n");
+    }
+
+end:
+    if (fd > 0)
+        close(fd);
+
+    return value[0] == '1' ? 1 : 0;
+}
+#endif
+
 void import_kernel_cmdline(int in_qemu,
                            void (*import_kernel_nv)(char *name, int in_qemu))
 {
@@ -414,6 +439,15 @@ void import_kernel_cmdline(int in_qemu,
 
         /* get rid of trailing newline, it happens */
         if (n > 0 && cmdline[n-1] == '\n') n--;
+
+#ifdef BOARD_PROVIDES_LPM_MODE
+        /* inject charger bootmode on devices with
+           proprietary bootloaders, like galaxys */
+        if (!in_qemu && is_charger_mode()) {
+            strcpy(cmdline, " androidboot.mode=charger");
+            n += 25;
+        }
+#endif
 
         cmdline[n] = 0;
         close(fd);
