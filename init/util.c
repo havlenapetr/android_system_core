@@ -444,8 +444,8 @@ void import_kernel_cmdline(int in_qemu,
         /* inject charger bootmode on devices with
            proprietary bootloaders, like galaxys */
         if (!in_qemu && is_charger_mode()) {
-            strcpy(cmdline, " androidboot.mode=lpm");
-            n += 21;
+            strcpy(cmdline, " androidboot.mode=charger");
+            n += 25;
         }
 #endif
 
