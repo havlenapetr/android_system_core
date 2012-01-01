@@ -721,6 +721,11 @@ int main(int argc, char **argv)
         init_parse_config_file("/recovery.rc");
     else
 #endif
+#ifdef BOARD_PROVIDES_LPM_MODE
+    if (!strcmp(bootmode, "lpm"))
+        init_parse_config_file("/lpm.rc");
+    else
+#endif
     {
         get_hardware_name(hardware, &revision);
         snprintf(tmp, sizeof(tmp), "/init.%s.rc", hardware);
