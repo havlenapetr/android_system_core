@@ -171,7 +171,7 @@ static struct animation battery_animation = {
 #ifdef CHARGER_ANIMATION_INFINITY
     .num_cycles = 0xFFFFFFFF,
 #else
-    .num_cycles = 3,
+    .num_cycles = 10,
 #endif
 };
 

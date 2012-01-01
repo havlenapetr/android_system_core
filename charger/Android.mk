@@ -5,7 +5,6 @@ ifneq ($(BUILD_TINY_ANDROID),true)
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
-CHARGER_ANIMATION_INFINITY := true
 ifeq ($(strip $(CHARGER_ANIMATION_INFINITY)),true)
 LOCAL_CFLAGS := -DCHARGER_ANIMATION_INFINITY=1
 endif
