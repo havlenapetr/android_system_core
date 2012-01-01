@@ -125,6 +125,7 @@ struct charger {
 
     struct animation *batt_anim;
     gr_surface surf_unknown;
+    gr_surface surf_charge;
 
     struct power_supply *battery;
 };
@@ -663,6 +664,18 @@ static void draw_battery(struct charger *charger)
     }
 }
 
+static void draw_cable_unplugged(struct charger *charger)
+{
+    int y;
+    if (charger->surf_charge) {
+        draw_surface_centered(charger, charger->surf_charge);
+    } else {
+        android_green();
+        y = draw_text("Cable unplugged!", -1, -1);
+        draw_text("?\?/100", -1, y + 25);
+    }
+}
+
 static void redraw_screen(struct charger *charger)
 {
     struct animation *batt_anim = charger->batt_anim;
@@ -672,6 +685,8 @@ static void redraw_screen(struct charger *charger)
     /* try to display *something* */
     if (batt_anim->capacity < 0 || batt_anim->num_frames == 0)
         draw_unknown(charger);
+    else if(charger->num_supplies_online <= 0)
+        draw_cable_unplugged(charger);
     else
         draw_battery(charger);
     gr_flip();
@@ -699,7 +714,8 @@ static void update_screen_state(struct charger *charger, int64_t now)
         return;
 
     /* animation is over, blank screen and leave */
-    if (batt_anim->cur_cycle == batt_anim->num_cycles) {
+    if (charger->num_supplies_online > 0 &&
+            batt_anim->cur_cycle == batt_anim->num_cycles) {
         reset_animation(batt_anim);
         charger->next_screen_transition = -1;
         gr_fb_blank(true);
@@ -748,6 +764,13 @@ static void update_screen_state(struct charger *charger, int64_t now)
     if (batt_anim->num_frames == 0 || batt_anim->capacity < 0) {
         LOGV("[%lld] animation missing or unknown battery status\n", now);
         charger->next_screen_transition = now + BATTERY_UNKNOWN_TIME;
+        batt_anim->cur_cycle++;
+        return;
+    }
+
+    /* if cable was unplugged */
+    if(charger->num_supplies_online <= 0) {
+        charger->next_screen_transition = now + disp_time;
         batt_anim->cur_cycle++;
         return;
     }
@@ -939,6 +962,12 @@ static void event_loop(struct charger *charger)
         handle_input_state(charger, now);
         handle_power_supply_state(charger, now);
 
+        // when no supply is online show it to the user and poweroff
+        if (charger->num_supplies_online <= 0) {
+            reset_animation(charger->batt_anim);
+            kick_animation(charger->batt_anim);
+        }
+
         /* do screen update last in case any of the above want to start
          * screen transitions (animations, etc)
          */
@@ -982,6 +1011,11 @@ int main(int argc, char **argv)
     if (ret < 0) {
         LOGE("Cannot load image\n");
         charger->surf_unknown = NULL;
+    }
+    ret = res_create_surface("charger/battery_charge", &charger->surf_charge);
+    if (ret < 0) {
+        LOGE("Cannot load charge image\n");
+        charger->surf_charge = NULL;
     }
 
     for (i = 0; i < charger->batt_anim->num_frames; i++) {
