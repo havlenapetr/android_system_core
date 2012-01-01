@@ -98,8 +98,8 @@ struct animation {
     int cur_frame;
     int num_frames;
 
-    int cur_cycle;
-    int num_cycles;
+    unsigned int cur_cycle;
+    unsigned int num_cycles;
 
     /* current capacity being animated */
     int capacity;
@@ -168,7 +168,11 @@ static struct frame batt_anim_frames[] = {
 static struct animation battery_animation = {
     .frames = batt_anim_frames,
     .num_frames = ARRAY_SIZE(batt_anim_frames),
+#ifdef CHARGER_ANIMATION_INFINITY
+    .num_cycles = 0xFFFFFFFF,
+#else
     .num_cycles = 3,
+#endif
 };
 
 static struct charger charger_state = {
@@ -914,6 +918,28 @@ static void event_loop(struct charger *charger)
     }
 }
 
+static void dump_cmdline()
+{
+    char cmdline[1024];
+    int fd;
+
+    fd = open("/proc/cmdline", O_RDONLY);
+    if (fd >= 0) {
+        int n = read(fd, cmdline, 1023);
+        if (n < 0) n = 0;
+
+        /* get rid of trailing newline, it happens */
+        if (n > 0 && cmdline[n-1] == '\n') n--;
+
+        cmdline[n] = 0;
+        close(fd);
+    } else {
+        cmdline[0] = 0;
+    }
+
+    LOGI("cmdline[ %s ]", cmdline);
+}
+
 int main(int argc, char **argv)
 {
     int ret;
@@ -927,6 +953,7 @@ int main(int argc, char **argv)
     klog_init();
     klog_set_level(CHARGER_KLOG_LEVEL);
 
+    dump_cmdline();
     dump_last_kmsg();
 
     LOGI("--------------- STARTING CHARGER MODE ---------------\n");
