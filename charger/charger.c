@@ -621,6 +621,11 @@ static void android_green(void)
     gr_color(0xa4, 0xc6, 0x39, 255);
 }
 
+static void android_white(void)
+{
+    gr_color(0xff, 0xff, 0xff, 255);
+}
+
 /* returns the last y-offset of where the surface ends */
 static int draw_surface_centered(struct charger *charger, gr_surface surface)
 {
@@ -651,13 +656,25 @@ static void draw_unknown(struct charger *charger)
     }
 }
 
+static int draw_battery_capacity(struct charger *charger, int x, int y)
+{
+    char buf[64];
+    snprintf(buf, sizeof(buf), "Battery capacity: %i",
+             get_battery_capacity(charger));
+    return draw_text(buf, x, y);
+}
+
 static void draw_battery(struct charger *charger)
 {
+    int y;
     struct animation *batt_anim = charger->batt_anim;
     struct frame *frame = &batt_anim->frames[batt_anim->cur_frame];
 
     if (batt_anim->num_frames != 0) {
-        draw_surface_centered(charger, frame->surface);
+        y = draw_surface_centered(charger, frame->surface);
+        android_white();
+        y = draw_text("Charging", -1, y + 25);
+        draw_battery_capacity(charger, -1, y + 40);
         LOGV("drawing frame #%d name=%s min_cap=%d time=%d\n",
              batt_anim->cur_frame, frame->name, frame->min_capacity,
              frame->disp_time);
@@ -667,8 +684,12 @@ static void draw_battery(struct charger *charger)
 static void draw_cable_unplugged(struct charger *charger)
 {
     int y;
+
     if (charger->surf_charge) {
-        draw_surface_centered(charger, charger->surf_charge);
+        y = draw_surface_centered(charger, charger->surf_charge);
+        android_white();
+        y = draw_text("Cable unplugged!", -1, y + 25);
+        draw_battery_capacity(charger, -1, y + 40);
     } else {
         android_green();
         y = draw_text("Cable unplugged!", -1, -1);
@@ -714,8 +735,7 @@ static void update_screen_state(struct charger *charger, int64_t now)
         return;
 
     /* animation is over, blank screen and leave */
-    if (charger->num_supplies_online > 0 &&
-            batt_anim->cur_cycle == batt_anim->num_cycles) {
+    if (batt_anim->cur_cycle == batt_anim->num_cycles) {
         reset_animation(batt_anim);
         charger->next_screen_transition = -1;
         gr_fb_blank(true);
@@ -764,13 +784,6 @@ static void update_screen_state(struct charger *charger, int64_t now)
     if (batt_anim->num_frames == 0 || batt_anim->capacity < 0) {
         LOGV("[%lld] animation missing or unknown battery status\n", now);
         charger->next_screen_transition = now + BATTERY_UNKNOWN_TIME;
-        batt_anim->cur_cycle++;
-        return;
-    }
-
-    /* if cable was unplugged */
-    if(charger->num_supplies_online <= 0) {
-        charger->next_screen_transition = now + disp_time;
         batt_anim->cur_cycle++;
         return;
     }
@@ -894,6 +907,7 @@ static void handle_power_supply_state(struct charger *charger, int64_t now)
             charger->next_pwr_check = now + UNPLUGGED_SHUTDOWN_TIME;
             LOGI("[%lld] device unplugged: shutting down in %lld (@ %lld)\n",
                  now, UNPLUGGED_SHUTDOWN_TIME, charger->next_pwr_check);
+            kick_animation(charger->batt_anim);
         } else if (now >= charger->next_pwr_check) {
             LOGI("[%lld] shutting down\n", now);
             android_reboot(ANDROID_RB_POWEROFF, 0, 0);
@@ -961,12 +975,6 @@ static void event_loop(struct charger *charger)
         LOGV("[%lld] event_loop()\n", now);
         handle_input_state(charger, now);
         handle_power_supply_state(charger, now);
-
-        // when no supply is online show it to the user and poweroff
-        if (charger->num_supplies_online <= 0) {
-            reset_animation(charger->batt_anim);
-            kick_animation(charger->batt_anim);
-        }
 
         /* do screen update last in case any of the above want to start
          * screen transitions (animations, etc)
