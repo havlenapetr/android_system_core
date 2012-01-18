@@ -454,6 +454,7 @@ service installd /system/bin/installd
 service flash_recovery /system/etc/install-recovery.sh
     class main
     oneshot
+    disabled
 
 service racoon /system/bin/racoon
     class main
