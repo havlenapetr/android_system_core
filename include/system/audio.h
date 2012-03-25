@@ -46,6 +46,9 @@ typedef enum {
     AUDIO_STREAM_ENFORCED_AUDIBLE = 7, /* Sounds that cannot be muted by user and must be routed to speaker */
     AUDIO_STREAM_DTMF             = 8,
     AUDIO_STREAM_TTS              = 9,
+#ifdef BOARD_HAVE_FM_RADIO
+    AUDIO_STREAM_FM               = 10,
+#endif
 
     AUDIO_STREAM_CNT,
     AUDIO_STREAM_MAX              = AUDIO_STREAM_CNT - 1,
@@ -288,11 +291,17 @@ typedef enum {
     AUDIO_DEVICE_OUT_AUX_DIGITAL               = 0x400,
     AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET         = 0x800,
     AUDIO_DEVICE_OUT_DGTL_DOCK_HEADSET         = 0x1000,
+#ifdef BOARD_HAVE_FM_RADIO
+    AUDIO_DEVICE_OUT_FM                        = 0x1400,
+#endif
     AUDIO_DEVICE_OUT_DEFAULT                   = 0x8000,
     AUDIO_DEVICE_OUT_ALL      = (AUDIO_DEVICE_OUT_EARPIECE |
                                  AUDIO_DEVICE_OUT_SPEAKER |
                                  AUDIO_DEVICE_OUT_WIRED_HEADSET |
                                  AUDIO_DEVICE_OUT_WIRED_HEADPHONE |
+#ifdef BOARD_HAVE_FM_RADIO
+                                 AUDIO_DEVICE_OUT_FM |
+#endif
                                  AUDIO_DEVICE_OUT_BLUETOOTH_SCO |
                                  AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET |
                                  AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT |
@@ -319,6 +328,10 @@ typedef enum {
     AUDIO_DEVICE_IN_AUX_DIGITAL           = 0x200000,
     AUDIO_DEVICE_IN_VOICE_CALL            = 0x400000,
     AUDIO_DEVICE_IN_BACK_MIC              = 0x800000,
+#ifdef BOARD_HAVE_FM_RADIO
+    AUDIO_DEVICE_IN_FM_RX                 = 0x1000000,
+    AUDIO_DEVICE_IN_FM_RX_A2DP            = 0x2000000,
+#endif
     AUDIO_DEVICE_IN_DEFAULT               = 0x80000000,
 
     AUDIO_DEVICE_IN_ALL     = (AUDIO_DEVICE_IN_COMMUNICATION |
@@ -329,9 +342,23 @@ typedef enum {
                                AUDIO_DEVICE_IN_AUX_DIGITAL |
                                AUDIO_DEVICE_IN_VOICE_CALL |
                                AUDIO_DEVICE_IN_BACK_MIC |
+#ifdef BOARD_HAVE_FM_RADIO
+                               AUDIO_DEVICE_IN_FM_RX |
+                               AUDIO_DEVICE_IN_FM_RX_A2DP |
+#endif
                                AUDIO_DEVICE_IN_DEFAULT),
     AUDIO_DEVICE_IN_ALL_SCO = AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET,
 } audio_devices_t;
+
+#ifdef BOARD_HAVE_FM_RADIO
+static inline bool audio_is_fm_device(audio_devices_t device)
+{
+    if ((popcount(device) == 1) && ((device & ~AUDIO_DEVICE_OUT_FM) == 0))
+        return true;
+    else
+        return false;
+}
+#endf
 
 static inline bool audio_is_output_device(audio_devices_t device)
 {
