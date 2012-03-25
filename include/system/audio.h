@@ -350,15 +350,17 @@ typedef enum {
     AUDIO_DEVICE_IN_ALL_SCO = AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET,
 } audio_devices_t;
 
-#ifdef BOARD_HAVE_FM_RADIO
 static inline bool audio_is_fm_device(audio_devices_t device)
 {
+#ifdef BOARD_HAVE_FM_RADIO
     if ((popcount(device) == 1) && ((device & ~AUDIO_DEVICE_OUT_FM) == 0))
         return true;
     else
         return false;
-}
+#else
+    return false;
 #endf
+}
 
 static inline bool audio_is_output_device(audio_devices_t device)
 {
