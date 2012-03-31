@@ -29,6 +29,7 @@ int do_chown(int nargs, char **args);
 int do_chmod(int nargs, char **args);
 int do_loglevel(int nargs, char **args);
 int do_wait(int nargs, char **args);
+int do_umount(int nargs, char **args);
 #define __MAKE_KEYWORD_ENUM__
 #define KEYWORD(symbol, flags, nargs, func) K_##symbol,
 enum {
@@ -55,6 +56,7 @@ enum {
     KEYWORD(mkdir,       COMMAND, 1, do_mkdir)
     KEYWORD(mknod,       COMMAND, 3, do_mknod)
     KEYWORD(mount,       COMMAND, 3, do_mount)
+	KEYWORD(umount,      COMMAND, 1, do_umount)
     KEYWORD(on,          SECTION, 0, 0)
     KEYWORD(oneshot,     OPTION,  0, 0)
     KEYWORD(onrestart,   OPTION,  0, 0)

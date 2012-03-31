@@ -388,6 +388,10 @@ int do_mount(int nargs, char **args)
     }
 }
 
+int do_umount(int nargs, char **args) {
+    return umount(args[1]);
+}
+
 int do_setkey(int nargs, char **args)
 {
     struct kbentry kbe;
