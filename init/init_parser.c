@@ -146,6 +146,7 @@ int lookup_keyword(const char *s)
         if (!strcmp(s, "rigger")) return K_trigger;
         break;
     case 'u':
+        if (!strcmp(s, "mount")) return K_umount;
         if (!strcmp(s, "ser")) return K_user;
         break;
     case 'w':
