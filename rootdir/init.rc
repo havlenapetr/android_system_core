@@ -1,4 +1,7 @@
 on early-init
+    # Set init and its forked children's oom_adj.
+    write /proc/1/oom_adj -16
+
     start ueventd
 
 # create mountpoints
@@ -64,6 +67,7 @@ loglevel 3
     write /proc/sys/kernel/sched_wakeup_granularity_ns 2000000
     write /proc/sys/kernel/sched_compat_yield 1
     write /proc/sys/kernel/sched_child_runs_first 0
+    write /proc/sys/kernel/randomize_va_space 2
 
 # Create cgroup mount points for process groups
     mkdir /dev/cpuctl
@@ -153,7 +157,7 @@ on post-fs-data
     # give system access to wpa_supplicant.conf for backup and restore
     mkdir /data/misc/wifi 0770 wifi wifi
     chmod 0660 /data/misc/wifi/wpa_supplicant.conf
-    mkdir /data/local 0771 shell shell
+    mkdir /data/local 0751 root root
     mkdir /data/local/tmp 0771 shell shell
     mkdir /data/data 0771 system system
     mkdir /data/app-private 0771 system system
@@ -171,8 +175,9 @@ on post-fs-data
     # create the lost+found directories, so as to enforce our permissions
     mkdir /data/lost+found 0770 root root
 
-    # create directory for DRM plug-ins
-    mkdir /data/drm 0774 drm drm
+    # create directory for DRM plug-ins - give drm the read/write access to
+    # the following directory.
+    mkdir /data/drm 0770 drm drm
 
     # If there is no fs-post-data action in the init.<device>.rc file, you
     # must uncomment this line, otherwise encrypted filesystems
@@ -203,9 +208,6 @@ on boot
     chmod 0664 /sys/module/lowmemorykiller/parameters/adj
     chown root system /sys/module/lowmemorykiller/parameters/minfree
     chmod 0664 /sys/module/lowmemorykiller/parameters/minfree
-
-    # Set init and its forked children's oom_adj.
-    write /proc/1/oom_adj -16
 
     # Tweak background writeout
     write /proc/sys/vm/dirty_expire_centisecs 200
@@ -379,6 +381,8 @@ service servicemanager /system/bin/servicemanager
     critical
     onrestart restart zygote
     onrestart restart media
+    onrestart restart surfaceflinger
+    onrestart restart drm
 
 service vold /system/bin/vold
     class core
