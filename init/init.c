@@ -711,14 +711,12 @@ int main(int argc, char **argv)
     open_devnull_stdio();
     klog_init();
 
-    INFO("reading config file\n");
-    init_parse_config_file("/init.rc");
-
     /* pull the kernel commandline and ramdisk properties file in */
     import_kernel_cmdline(0, import_kernel_nv);
     /* don't expose the raw commandline to nonpriv processes */
     chmod("/proc/cmdline", 0440);
 
+    INFO("reading config file\n");
 #ifdef BOARD_PROVIDES_BOOTMODE
     /* Samsung Galaxy S: special bootmode for recovery
      * Samsung Bootloader only knows one Kernel, which has to detect
@@ -728,6 +726,7 @@ int main(int argc, char **argv)
     else
 #endif
     {
+        init_parse_config_file("/init.rc");
         get_hardware_name(hardware, &revision);
         snprintf(tmp, sizeof(tmp), "/init.%s.rc", hardware);
         init_parse_config_file(tmp);
