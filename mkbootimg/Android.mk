@@ -2,6 +2,10 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
+ifeq ($(TARGET_BOOTLOADER_BOARD_NAME),aries)
+LOCAL_CFLAGS := -DUSE_DROID_RAMFS
+endif
+
 LOCAL_SRC_FILES := mkbootimg.c
 LOCAL_STATIC_LIBRARIES := libmincrypt
 
