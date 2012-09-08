@@ -243,12 +243,13 @@ int main(int argc, char **argv)
         return 1;
     }
 
-#ifndef USE_DROID_RAMFS
+#if !defined( USE_DROID_RAMFS ) && !defined( USE_INIT_RAMFS )
     if(write(fd, &hdr, sizeof(hdr)) != sizeof(hdr)) goto fail;
     if(write_padding(fd, pagesize, sizeof(hdr))) goto fail;
-#endif
+#endif // end of USE_DROID_RAMFS && USE_INIT_RAMFS
 
     if(write(fd, kernel_data, hdr.kernel_size) != hdr.kernel_size) goto fail;
+#if !defined( USE_INIT_RAMFS )
     if(write_padding(fd, pagesize, hdr.kernel_size)) goto fail;
 
     if(write(fd, ramdisk_data, hdr.ramdisk_size) != hdr.ramdisk_size) goto fail;
@@ -259,9 +260,10 @@ int main(int argc, char **argv)
         if(write_padding(fd, pagesize, hdr.ramdisk_size)) goto fail;
     }
 
-#ifdef USE_DROID_RAMFS
+#if defined( USE_DROID_RAMFS )
     if(write(fd, &hdr, sizeof(hdr)) != sizeof(hdr)) goto fail;
-#endif
+#endif // end of USE_DROID_RAMFS
+#endif // end of USE_INIT_RAMFS
 
     return 0;
 
