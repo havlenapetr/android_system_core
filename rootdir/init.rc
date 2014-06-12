@@ -604,13 +604,14 @@ service racoon /system/bin/racoon
     disabled
     oneshot
 
-service mtpd /system/bin/mtpd
-    class main
-    socket mtpd stream 600 system system
-    user vpn
-    group vpn net_admin inet net_raw
-    disabled
-    oneshot
+#codewalker not used mtpd
+#service mtpd /system/bin/mtpd
+#    class main
+#    socket mtpd stream 600 system system
+#    user vpn
+#    group vpn net_admin inet net_raw
+#    disabled
+#    oneshot
 
 service keystore /system/bin/keystore /data/misc/keystore
     class main
