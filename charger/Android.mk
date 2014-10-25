@@ -8,14 +8,6 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	charger.c
 
-ifeq ($(strip $(BOARD_CHARGER_DISABLE_INIT_BLANK)),true)
-LOCAL_CFLAGS := -DCHARGER_DISABLE_INIT_BLANK
-endif
-
-ifeq ($(strip $(BOARD_CHARGER_ENABLE_SUSPEND)),true)
-LOCAL_CFLAGS += -DCHARGER_ENABLE_SUSPEND
-endif
-
 LOCAL_MODULE := charger
 LOCAL_MODULE_TAGS := optional
 LOCAL_FORCE_STATIC_EXECUTABLE := true
@@ -25,16 +17,12 @@ LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_UNSTRIPPED)
 LOCAL_C_INCLUDES := bootable/recovery
 
 ifneq ($(TARGET_RECOVERY_GRAPHICS_LIB),)
-LOCAL_STATIC_LIBRARIES += $(TARGET_RECOVERY_GRAPHICS_LIB)
+LOCAL_STATIC_LIBRARIES := $(TARGET_RECOVERY_GRAPHICS_LIB)
 LOCAL_STATIC_LIBRARIES += libminui libpixelflinger_static libpng
 else
 LOCAL_STATIC_LIBRARIES := libminui libpixelflinger_static libpng
 endif
-
-ifeq ($(strip $(BOARD_CHARGER_ENABLE_SUSPEND)),true)
-LOCAL_STATIC_LIBRARIES += libsuspend
-endif
-LOCAL_STATIC_LIBRARIES += libz libstdc++ libcutils liblog libm libc
+LOCAL_STATIC_LIBRARIES += libz libstdc++ libcutils liblog libc
 
 include $(BUILD_EXECUTABLE)
 
