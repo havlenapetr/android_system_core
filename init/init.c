@@ -895,7 +895,7 @@ int main(int argc, char **argv)
     /* Samsung Galaxy S: special bootmode for recovery
      * Samsung Bootloader only knows one Kernel, which has to detect
      * from bootmode if it should run recovery. */
-    if (!strcmp(bootmode, "2"))
+    if (!strcmp(bootmode, "recovery"))
         init_parse_config_file("/recovery.rc");
     else
 #endif
